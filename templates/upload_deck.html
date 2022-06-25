@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+<h1>Create Pitch Deck Page</h1>
+{% if user.is_authenticated %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons %}
+      <button type="submit" class="btn btn-primary">Submit New Pitch Deck</button>
+    {% endbuttons %}
+</form>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $('form').submit(function(e) {
+        // This is a lengthy operation, at least put loading...
+        $("div.loading").addClass("show");
+
+        return true;
+    });
+</script>
+{% endblock %}

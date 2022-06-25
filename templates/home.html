@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Home</h1>
+<!--
+    TODO: perhaps shortlist that links to each deck if there are too many
+    TODO: pagination is missing :(
+-->
+{% if user.is_authenticated %}
+{% for pitch_deck in decks %}
+<div class="pitch_deck">
+<h3>{{ pitch_deck.title }}</h3>
+<a href="{{ pitch_deck.presentation_file.url }}" class="btn-outline-primary"><i class="bi bi-download"></i> Download</a>
+<a class="delete btn-outline-danger" data-object-id="{{ pitch_deck.id }}"><i class="bi bi-trash"></i> Delete</a>
+
+<ul class="my-image-list">
+  <li>
+    <!-- TODO perhaps would be more user friendly to display only e.g. 3 slides and have a show all link -->
+    {% for deck_image in pitch_deck.deck_images.all %}
+        <figure>
+          <p><img src="{{ deck_image.slide.url}}">
+          <figcaption>{{ deck_image.title }}</figcaption>
+        </figure>
+    {% endfor %}
+  </li>
+</ul>
+</div>
+{% endfor %}
+{% else %}
+Hello weFunder!
+{%  endif %}
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $('a.delete').on('click', function(){
+        let confirmation = confirm("Are you sure you want to remove the item?");
+        if (confirmation) {
+            let deckId = $(this).attr('data-object-id');
+            $.ajax({
+                url: `${deckId}/delete/`,
+                data: {
+                    'csrfmiddlewaretoken': "{{ csrf_token }}"
+                },
+                type: "POST",
+                dataType: "json"
+            }).done(
+                function(){
+                    alert("Deleted");
+                    // Quick and dirty (otherwise delete from DOM)
+                    window.location.reload();
+                }
+            ).fail(
+                function(err) {
+                    console.error(err);
+                }
+            )
+        }
+        return false;
+    });
+</script>
+{% endblock %}
